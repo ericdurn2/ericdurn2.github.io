@@ -275,12 +275,61 @@
     .scoreboard{margin-top:-1.25rem;padding:0.85rem 1rem}
     .q-card{padding:1rem}
   }
+
+  /* ===== THEME TOGGLE BUTTON ===== */
+  .theme-toggle{
+    position:absolute;top:1rem;right:1rem;z-index:5;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11.5px;font-weight:600;letter-spacing:0.04em;
+    padding:6px 13px;border-radius:20px;
+    border:1px solid var(--gold);
+    background:rgba(200,150,46,0.12);
+    color:var(--gold-light);
+    cursor:pointer;transition:background 0.15s;
+  }
+  .theme-toggle:hover{background:rgba(200,150,46,0.24)}
+  @media (max-width:480px){.theme-toggle{top:0.75rem;right:0.75rem;padding:5px 10px}}
+
+  /* ===== DARK MODE ===== */
+  [data-theme="dark"]{
+    --paper:#0F1720;
+    --paper-line:#2A3743;
+    --ink:#E7ECF1;
+    --ink-soft:#9DABB6;
+    --steel:#3A5870;
+    --green:#5BB36B;
+    --green-bg:#16301D;
+    --red:#E06A62;
+    --red-bg:#391E1C;
+    --card:#18222E;
+  }
+  /* Surfaces that hardcoded white in light mode */
+  [data-theme="dark"] .scoreboard,
+  [data-theme="dark"] .filter-chip,
+  [data-theme="dark"] .q-card,
+  [data-theme="dark"] .results,
+  [data-theme="dark"] .choice .letter{background:var(--card)}
+  [data-theme="dark"] .choice:hover{background:#1E2A38}
+  [data-theme="dark"] .choice.selected{background:#1E2A38}
+  [data-theme="dark"] .scoreboard{box-shadow:0 6px 18px -10px rgba(0,0,0,0.6)}
+  /* Buttons: navy text is unreadable on dark surfaces, retint */
+  [data-theme="dark"] .btn{background:var(--card);border-color:#3D5468;color:#CBD6E0}
+  [data-theme="dark"] .btn:hover{background:#3D5468;color:#fff}
+  [data-theme="dark"] .btn.primary{background:#24486A;border-color:#24486A;color:#fff}
+  [data-theme="dark"] .btn.primary:hover{background:#2E5A84}
+  [data-theme="dark"] .btn:disabled:hover{background:var(--card);color:#CBD6E0}
+  [data-theme="dark"] .filter-chip:hover{border-color:var(--steel);color:var(--ink)}
+  [data-theme="dark"] .filter-chip.active{background:#24486A;border-color:#24486A;color:#fff}
+  /* Navy display text that needs to lighten on dark cards */
+  [data-theme="dark"] .results-pct,
+  [data-theme="dark"] .bd-score{color:var(--gold)}
 </style>
 </head>
 <body>
 
 <header class="masthead">
   <div class="masthead-inner">
+    <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">Dark mode</button>
     <div class="badge-row">
       <div class="badge">FL</div>
       <div class="masthead-titles">
@@ -584,6 +633,26 @@ function showResults(){
   showingResults = true;
   render();
 }
+
+function applyTheme(t){
+  if(t==='dark') document.documentElement.setAttribute('data-theme','dark');
+  else document.documentElement.removeAttribute('data-theme');
+  const btn = document.getElementById('themeToggle');
+  if(btn) btn.textContent = (t==='dark') ? 'Light mode' : 'Dark mode';
+}
+
+function toggleTheme(){
+  const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+  const next = isDark ? 'light' : 'dark';
+  try{ localStorage.setItem('soce-theme', next); }catch(e){}
+  applyTheme(next);
+}
+
+(function initTheme(){
+  let t = 'light';
+  try{ t = localStorage.getItem('soce-theme') || 'light'; }catch(e){}
+  applyTheme(t);
+})();
 
 buildFilterBar();
 render();
